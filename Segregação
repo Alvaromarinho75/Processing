@@ -1,0 +1,96 @@
+// Implementação do Modelo de Schelling em Processing
+
+// Tamanho do grid
+int n = 50;
+
+// Probabilidade inicial de cada tipo de célula
+float probVerde = 0.45;
+float probAzul = 0.45;
+float probVazia = 0.1;
+
+// Grid
+int[][] grid;
+
+// Função para setup inicial
+void setup() {
+  size(600, 600);
+  frameRate(10);
+  grid = criaGrid(probVerde, probAzul, probVazia);
+}
+
+// Função para criar o grid inicial
+int[][] criaGrid(float probVerde, float probAzul, float probVazia) {
+  int[][] m = new int[n][n];
+  for (int i = 0; i < n; i++) {
+    for (int j = 0; j < n; j++) {
+      float r = random(1);
+      if (r < probVerde) {
+        m[i][j] = 1; // Verde
+      } else if (r < probVerde + probAzul) {
+        m[i][j] = 2; // Azul
+      } else {
+        m[i][j] = 0; // Vazia
+      }
+    }
+  }
+  return m;
+}
+
+// Função para mostrar o grid
+void mostraGrid() {
+  float l = width / (float) n;
+  float h = height / (float) n;
+  for (int i = 0; i < n; i++) {
+    for (int j = 0; j < n; j++) {
+      stroke(200);
+      fill((grid[i][j] == 0) ? 255 : (grid[i][j] == 1) ? color(0, 255, 0) : color(0, 0, 255));
+      rect(j * l, i * h, l, h);
+    }
+  }
+}
+
+// Função para contar os vizinhos do mesmo tipo
+int vizinhosIguais(int i, int j, int corAtual) {
+  int contagem = 0;
+  for (int ki = -1; ki < 2; ki++) {
+    for (int kj = -1; kj < 2; kj++) {
+      if (!(ki == 0 && kj == 0)) {
+        int ni = (n + i + ki) % n;
+        int nj = (n + j + kj) % n;
+        if (grid[ni][nj] == corAtual) {
+          contagem++;
+        }
+      }
+    }
+  }
+  return contagem;
+}
+
+// Função para atualizar o grid
+void atualizaGrid() {
+  int[][] novoGrid = new int[n][n];
+  for (int i = 0; i < n; i++) {
+    for (int j = 0; j < n; j++) {
+      novoGrid[i][j] = grid[i][j];
+      int tipoAtual = grid[i][j];
+      int vizinhosMesmoTipo = vizinhosIguais(i, j, tipoAtual);
+      if (vizinhosMesmoTipo < 4 && tipoAtual != 0) {
+        int vazioX, vazioY;
+        do {
+          vazioX = int(random(n));
+          vazioY = int(random(n));
+        } while (novoGrid[vazioX][vazioY] != 0);
+        novoGrid[vazioX][vazioY] = tipoAtual;
+        novoGrid[i][j] = 0;
+      }
+    }
+  }
+  grid = novoGrid;
+}
+
+// Função para desenhar (atualiza e mostra o grid)
+void draw() {
+  background(220);
+  mostraGrid();
+  atualizaGrid();
+}
