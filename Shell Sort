@@ -1,0 +1,62 @@
+int n = 20;
+int[] array = new int[n]; 
+int i = -1, j = -1, minIdx = -1, movingBarIndex = -1; // Adicionada a variável movingBarIndex
+
+void setup() {
+  size(800, 600);
+  for(int k = 0; k < array.length; k++) array[k] = (int) random(height);
+  thread("ordenar");
+}
+
+void draw() {
+  background(220);
+  int l = width / n;
+  for (int k = 0; k < n; k++) {
+    int h = int(array[k]);
+    if(k == i || k == j || k == minIdx) fill(100, 250, 100);
+    else if (k == movingBarIndex) fill(250, 100, 100); // Se a barra estiver se movendo, pinte-a de vermelho
+    else fill(100, 100, 250);
+    rect(k * l, height - h, l, h);
+    fill(0);
+    textAlign(CENTER);
+    text(str(n), n * l, height - h - 10, l, h);
+  }
+  
+  if(mousePressed){
+    for(int k = 0; k < array.length; k++) array[k] = (int) random(height);
+  }
+}
+
+void ordenar() {   
+  while(true) shellSort(array);    
+}
+
+// Shell Sort
+void shellSort(int[] arr) {
+   int n = arr.length;
+   int h = i;
+   while(h < n/3) {
+     h = 3 * h + 1;
+   }
+   
+   while (h >= 1) {
+      for (int i = h; i <= (n - 1); i++) {
+          int temp = array[i];
+          int j = i;
+          
+          while (j >= h && arr[j - h] > temp) {
+            arr[j] = arr[j - h];
+            j = j - h;
+            movingBarIndex = j;
+            delay(150); // Adiciona uma pequena pausa para atrasar a próxima iteração do loop
+          }
+          
+          arr[j] = temp;
+          delay(150); // Atrasa a próxima iteração do loop após ordenar a barra
+          movingBarIndex = -1;
+      }
+      
+      h = h/3;
+   }
+}
+
